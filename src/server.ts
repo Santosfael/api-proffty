@@ -1,4 +1,8 @@
+import fastifySwagger from "@fastify/swagger"
 import fastify from "fastify"
+import { jsonSchemaTransform, serializerCompiler, validatorCompiler } from "fastify-type-provider-zod"
+import scalarAPIReference from "@scalar/fastify-api-reference"
+import { ZodTypeProvider } from "fastify-type-provider-zod"
 
 const server = fastify({
     logger: {
@@ -10,7 +14,24 @@ const server = fastify({
             }
         }
     }
+}).withTypeProvider<ZodTypeProvider>()
+
+server.register(fastifySwagger, {
+    openapi: {
+        info: {
+            title: "Proffy API",
+            version: "1.0.0"
+        }
+    },
+    transform: jsonSchemaTransform
 })
+
+server.register(scalarAPIReference, {
+    routePrefix: "/docs"
+})
+
+server.setValidatorCompiler(validatorCompiler)
+server.setSerializerCompiler(serializerCompiler)
 
 const classes = [
     { id: 1, name: "Português" },
